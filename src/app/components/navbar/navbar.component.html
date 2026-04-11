@@ -1,0 +1,17 @@
+<nav class="sidebar">
+
+  <h2>
+    <span class="material-icons">rocket_launch</span>
+    DevOps Panel
+  </h2>
+
+  <ul>
+    <li *ngFor="let item of menu$ | async">
+      <a [routerLink]="item.route">
+        <span class="material-icons">{{ item.icon }}</span>
+        {{ item.title }}
+      </a>
+    </li>
+  </ul>
+
+</nav>

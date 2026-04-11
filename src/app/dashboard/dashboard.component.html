@@ -1,0 +1,58 @@
+<div class="dashboard" *ngIf="env$ | async as env">
+
+  <header class="dashboard-header">
+    <h1>Deployment Status</h1>
+    <button class="refresh-btn" (click)="refresh()">↻ Refresh</button>
+  </header>
+
+  <div class="env-card"
+       [class.blue]="env.environment === 'blue'"
+       [class.green]="env.environment === 'green'"
+       [class.unknown]="env.environment === 'unknown'">
+    <span class="env-label">Active Environment</span>
+    <span class="env-value">{{ env.environment | uppercase }}</span>
+  </div>
+
+  <div class="status-grid">
+    <div class="stat-card">
+      <span class="stat-label">Version</span>
+      <span class="stat-value">{{ env.version }}</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Build #</span>
+      <span class="stat-value">{{ env.buildNumber ?? '—' }}</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Git Commit</span>
+      <span class="stat-value mono">{{ env.gitCommit ?? '—' }}</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Last Deploy</span>
+      <span class="stat-value">{{ formatDate(env.lastDeploy) }}</span>
+    </div>
+    <div class="stat-card"
+         [class.healthy]="env.health === 'healthy'"
+         [class.rollback]="env.health === 'rollback'">
+      <span class="stat-label">Health</span>
+      <span class="stat-value">
+        <span class="health-dot"
+              [class.green]="env.health === 'healthy'"
+              [class.red]="env.health === 'rollback'"></span>
+        {{ env.health | titlecase }}
+      </span>
+    </div>
+    <div class="stat-card" *ngIf="env.previousEnvironment">
+      <span class="stat-label">Previous Env</span>
+      <span class="stat-value">{{ env.previousEnvironment | uppercase }}</span>
+    </div>
+  </div>
+
+  <div class="alert rollback-alert" *ngIf="env.health === 'rollback'">
+    ⚠️ Deploy failed. Build #{{ env.failedBuild }} was rolled back.
+  </div>
+
+  <footer class="dashboard-footer">
+    Auto-refresh every 30s · Last load: {{ now | date:'HH:mm:ss' }}
+  </footer>
+
+</div>

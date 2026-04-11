@@ -1,0 +1,117 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Blue/Green Deployment — Docker Compose
+#
+# Topology:
+#   app-blue  (port 8081 on host)  ─┐
+#                                    ├── nginx-proxy (port 80 on host)
+#   app-green (port 8082 on host)  ─┘
+#
+# Jenkins rewrites nginx/conf.d/upstream.conf y ejecuta nginx -s reload
+# ─────────────────────────────────────────────────────────────────────────────
+
+networks:
+  bluegreen:
+    driver: bridge
+
+services:
+
+  # ── Blue environment ──────────────────────────────────────────────────────
+  app-blue:
+    image: angular-app:${BLUE_TAG:-latest}
+    container_name: app-blue
+    restart: unless-stopped
+    networks:
+      - bluegreen
+    expose:
+      - "80"
+    ports:
+      - "8081:80"
+    environment:
+      - APP_ENV=blue
+    volumes:
+      - ./assets:/usr/share/nginx/html/assets:ro
+    labels:
+      - "bluegreen.env=blue"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # ── Green environment ─────────────────────────────────────────────────────
+  app-green:
+    image: angular-app:${GREEN_TAG:-latest}
+    container_name: app-green
+    restart: unless-stopped
+    networks:
+      - bluegreen
+    expose:
+      - "80"
+    ports:
+      - "8082:80"
+    environment:
+      - APP_ENV=green
+    volumes:
+      - ./assets:/usr/share/nginx/html/assets:ro
+    labels:
+      - "bluegreen.env=green"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # ── Nginx reverse proxy ───────────────────────────────────────────────────
+  nginx-proxy:
+    image: nginx:1.25-alpine
+    container_name: nginx-proxy
+    restart: unless-stopped
+    networks:
+      - bluegreen
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - app-blue
+      - app-green
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      - "role=proxy"
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    restart: unless-stopped
+    networks:
+      - bluegreen
+    ports:
+      - "9090:8080"      # Jenkins UI → http://localhost:9090
+      - "50000:50000"    # Agentes Jenkins
+    volumes:
+      - jenkins-data:/var/jenkins_home
+      # Permite que Jenkins ejecute Docker desde dentro del contenedor
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Monta el proyecto para que Jenkins pueda escribir env.json y upstream.conf
+      - .:/workspace
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=true
+    user: root   # necesario para acceder a docker.sock
+volumes:
+  jenkins-data:

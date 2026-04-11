@@ -1,0 +1,31 @@
+<div class="container">
+
+  <h2>
+    <span class="material-icons">shopping_cart</span>
+    Productos
+  </h2>
+
+  <div class="grid">
+
+    <div class="card" *ngFor="let p of products$ | async">
+
+      <img [src]="p.image" alt="product">
+
+      <h3>{{ p.name }}</h3>
+
+      <p class="price">S/ {{ p.price }}</p>
+
+      <p class="category">{{ p.category }}</p>
+
+      <p>
+        Stock:
+        <span [ngClass]="p.stock > 0 ? 'in-stock' : 'out-stock'">
+          {{ p.stock > 0 ? 'Disponible' : 'Agotado' }}
+        </span>
+      </p>
+
+    </div>
+
+  </div>
+
+</div>

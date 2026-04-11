@@ -1,0 +1,18 @@
+.layout {
+  display: flex;
+  height: 100vh;
+}
+
+/* 🔵 SIDEBAR (1/3) */
+app-navbar {
+  flex: 0 0 250px; /* fijo */
+  height: 100vh;
+}
+
+/* 🟢 CONTENIDO (2/3) */
+.content {
+  flex: 1;
+  padding: 20px;
+  background: #0b1220;
+  overflow-y: auto;
+}
