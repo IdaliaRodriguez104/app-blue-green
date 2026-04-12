@@ -164,7 +164,7 @@ pipeline {
                         # docker pull ${IMAGE_NAME}:${IMAGE_TAG}
 
                         # Update the inactive container with the new image
-                        ${envTag}=${IMAGE_TAG} docker-compose up -d --no-deps --force-recreate ${INACTIVE_CONTAINER}
+                        ${envTag}=${IMAGE_TAG} docker compose up -d --no-deps --force-recreate ${INACTIVE_CONTAINER}
 
                         echo "⏳ Waiting 15s for container to initialize..."
                         sleep 15
