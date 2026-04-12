@@ -159,15 +159,12 @@ pipeline {
                     sh """
                         cd ${COMPOSE_DIR}
 
-                        # Asegura que ambos contenedores estén corriendo antes de desplegar
-                        docker compose up -d app-blue app-green
-
-                        # Elimina el contenedor inactivo para recrearlo limpio
+                        # Solo elimina el contenedor INACTIVO, deja el activo intacto
                         docker stop ${INACTIVE_CONTAINER} || true
                         docker rm -f ${INACTIVE_CONTAINER} || true
 
-                        # Despliega con la nueva imagen
-                        ${envTag}=${IMAGE_TAG} docker compose up -d --no-deps --force-recreate ${INACTIVE_CONTAINER}
+                        # Despliega solo el inactivo con la nueva imagen
+                        ${envTag}=${IMAGE_TAG} docker compose up -d --no-deps ${INACTIVE_CONTAINER}
 
                         echo "⏳ Waiting 15s for container to initialize..."
                         sleep 15
