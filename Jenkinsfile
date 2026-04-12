@@ -312,9 +312,11 @@ EOF
                     sh """
                         mkdir -p ${ASSETS_DIR}
                         cat > ${ASSETS_DIR}/env.json << 'ENVEOF'
-${envJson}
-ENVEOF
-                        echo "✅ env.json written:"
+                    ${envJson}
+                    ENVEOF
+                        # Copia directamente al contenedor activo (fix Docker Desktop Windows)
+                        docker cp ${ASSETS_DIR}/env.json ${INACTIVE_CONTAINER}:/usr/share/nginx/html/assets/env.json
+                        echo "✅ env.json copiado al contenedor ${INACTIVE_CONTAINER}"
                         cat ${ASSETS_DIR}/env.json
                     """
 
