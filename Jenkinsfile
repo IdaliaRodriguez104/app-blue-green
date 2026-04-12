@@ -159,12 +159,15 @@ pipeline {
                     sh """
                         cd ${COMPOSE_DIR}
 
-                        # Solo elimina el contenedor INACTIVO, deja el activo intacto
+                        # Elimina el contenedor inactivo
                         docker stop ${INACTIVE_CONTAINER} || true
                         docker rm -f ${INACTIVE_CONTAINER} || true
 
-                        # Despliega solo el inactivo con la nueva imagen
+                        # Despliega el inactivo con la nueva imagen
                         ${envTag}=${IMAGE_TAG} docker compose up -d --no-deps ${INACTIVE_CONTAINER}
+
+                        # Asegura que el contenedor esté en la red correcta
+                        docker network connect blue-green-app_bluegreen ${INACTIVE_CONTAINER} || true
 
                         echo "⏳ Waiting 15s for container to initialize..."
                         sleep 15
