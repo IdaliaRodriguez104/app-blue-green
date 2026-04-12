@@ -29,7 +29,7 @@ services:
     environment:
       - APP_ENV=blue
     volumes:
-      - ./assets:/usr/share/nginx/html/assets:ro
+      - ./assets:/usr/share/nginx/html/assets
     labels:
       - "bluegreen.env=blue"
     logging:
@@ -58,7 +58,7 @@ services:
     environment:
       - APP_ENV=green
     volumes:
-      - ./assets:/usr/share/nginx/html/assets:ro
+      - ./assets:/usr/share/nginx/html/assets
     labels:
       - "bluegreen.env=green"
     logging:
@@ -96,22 +96,20 @@ services:
     labels:
       - "role=proxy"
   jenkins:
-    image: jenkins/jenkins:lts
+    build:
+      context: ./jenkins
+      dockerfile: Dockerfile
     container_name: jenkins
     restart: unless-stopped
     networks:
-      - bluegreen
+      - bluegreen        # ← agrega esto
     ports:
-      - "9090:8080"      # Jenkins UI → http://localhost:9090
-      - "50000:50000"    # Agentes Jenkins
+      - "9090:8080"
+      - "50000:50000"
     volumes:
       - jenkins-data:/var/jenkins_home
-      # Permite que Jenkins ejecute Docker desde dentro del contenedor
       - /var/run/docker.sock:/var/run/docker.sock
-      # Monta el proyecto para que Jenkins pueda escribir env.json y upstream.conf
       - .:/workspace
-    environment:
-      - JAVA_OPTS=-Djenkins.install.runSetupWizard=true
-    user: root   # necesario para acceder a docker.sock
+    user: root
 volumes:
   jenkins-data:
