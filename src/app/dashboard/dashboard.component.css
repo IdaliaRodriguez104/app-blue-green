@@ -1,6 +1,6 @@
 .dashboard { max-width: 860px; margin: 2rem auto; padding: 0 1rem; font-family: sans-serif; }
 .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-h1 { font-size: 1.4rem; font-weight: 600; margin: 0; color: #1a1a2e; }
+h1 { font-size: 1.4rem; font-weight: 600; margin: 0; color: #ffffff; }
 .refresh-btn { padding: .4rem .9rem; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; font-size: .9rem; }
 
 .env-card { display: flex; flex-direction: column; align-items: center; justify-content: center;
