@@ -1,0 +1,13 @@
+node_modules
+dist
+.git
+.angular
+assets
+*.md
+.gitignore
+jenkins/
+scripts/
+nginx/
+docker-compose.yml
+Jenkinsfile
+Makefile
