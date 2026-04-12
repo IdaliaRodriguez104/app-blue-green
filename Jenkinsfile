@@ -288,16 +288,15 @@ EOF
 
         // ────────────────────────────────────────────────────────────────────
         stage('Update env.json') {
-        // ────────────────────────────────────────────────────────────────────
-            steps {
-                echo "📄 [ENV.JSON] Updating Angular dashboard status file..."
-                script {
-                    def now = sh(
-                        script: "date -u '+%Y-%m-%dT%H:%M:%SZ'",
-                        returnStdout: true
-                    ).trim()
+    steps {
+        echo "📄 [ENV.JSON] Updating Angular dashboard status file..."
+        script {
+            def now = sh(
+                script: "date -u '+%Y-%m-%dT%H:%M:%SZ'",
+                returnStdout: true
+            ).trim()
 
-                    def envJson = """{
+            def envJson = """{
   "environment": "${INACTIVE_ENV}",
   "version": "${IMAGE_TAG}",
   "gitCommit": "${GIT_COMMIT_SHORT}",
@@ -307,25 +306,22 @@ EOF
   "previousEnvironment": "${ACTIVE_ENV}"
 }"""
 
-                    // Write env.json to shared assets directory
-                    // This is mounted as a volume in the active container
-                    sh """
-                        mkdir -p ${ASSETS_DIR}
-                        cat > ${ASSETS_DIR}/env.json << 'ENVEOF'
-                    ${envJson}
-                    ENVEOF
-                        # Copia directamente al contenedor activo (fix Docker Desktop Windows)
-                        docker cp ${ASSETS_DIR}/env.json ${INACTIVE_CONTAINER}:/usr/share/nginx/html/assets/env.json
-                        echo "✅ env.json copiado al contenedor ${INACTIVE_CONTAINER}"
-                        cat ${ASSETS_DIR}/env.json
-                    """
+            // Escribe en workspace de Jenkins
+            sh "mkdir -p ${ASSETS_DIR}"
+            writeFile file: "${ASSETS_DIR}/env.json", text: envJson
 
-                    echo "✅ [ENV.JSON] Dashboard updated with ${INACTIVE_ENV} / build ${BUILD_NUMBER}"
-                }
-            }
+            // Copia directamente a AMBOS contenedores
+            sh """
+                docker cp ${ASSETS_DIR}/env.json ${INACTIVE_CONTAINER}:/usr/share/nginx/html/assets/env.json
+                docker cp ${ASSETS_DIR}/env.json ${ACTIVE_CONTAINER}:/usr/share/nginx/html/assets/env.json
+                echo "✅ env.json copiado a ${INACTIVE_CONTAINER} y ${ACTIVE_CONTAINER}"
+                cat ${ASSETS_DIR}/env.json
+            """
+
+            echo "✅ [ENV.JSON] Dashboard updated with ${INACTIVE_ENV} / build ${BUILD_NUMBER}"
         }
-
-    } // end stages
+    }
+}// end stages
 
     // ── Post-build actions ───────────────────────────────────────────────────
     post {
