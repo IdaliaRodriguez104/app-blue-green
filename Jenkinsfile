@@ -180,7 +180,7 @@ pipeline {
             steps {
                 echo "❤️  [HEALTH CHECK] Validating ${INACTIVE_ENV} container..."
                 script {
-                    def healthUrl = "http://localhost:${INACTIVE_PORT}/health"
+                    def healthUrl = "http://${env.INACTIVE_CONTAINER}/health"
                     def maxRetries = env.HC_MAX_RETRIES.toInteger()
                     def retryDelay = env.HC_RETRY_DELAY.toInteger()
                     def timeout    = env.HC_TIMEOUT.toInteger()
