@@ -156,14 +156,14 @@ pipeline {
                 echo "🚀 [DEPLOY] Deploying image to ${INACTIVE_ENV} container..."
                 script {
                     def envTag = env.INACTIVE_ENV == "blue" ? "BLUE_TAG" : "GREEN_TAG"
-
                     sh """
                         cd ${COMPOSE_DIR}
 
-                        # Pull latest image if using registry
-                        # docker pull ${IMAGE_NAME}:${IMAGE_TAG}
+                        # Elimina el contenedor inactivo si existe
+                        docker stop ${INACTIVE_CONTAINER} || true
+                        docker rm -f ${INACTIVE_CONTAINER} || true
 
-                        # Update the inactive container with the new image
+                        # Despliega con la nueva imagen
                         ${envTag}=${IMAGE_TAG} docker compose up -d --no-deps --force-recreate ${INACTIVE_CONTAINER}
 
                         echo "⏳ Waiting 15s for container to initialize..."
