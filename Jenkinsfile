@@ -21,18 +21,18 @@ pipeline {
     // ── Environment variables ────────────────────────────────────────────────
     environment {
         // Docker registry — set to your registry (Docker Hub, ECR, GCR, etc.)
-        REGISTRY          = "your-registry"
-        IMAGE_NAME        = "${REGISTRY}/angular-app"
+        REGISTRY          = ""
+        IMAGE_NAME        = "angular-app"
         IMAGE_TAG         = "${BUILD_NUMBER}"
 
         // Path on the Jenkins host where docker-compose.yml lives
-        COMPOSE_DIR       = "/opt/bluegreen"
+        COMPOSE_DIR   = "/workspace"
 
         // Path to nginx upstream config (mounted volume on host)
-        UPSTREAM_CONF     = "${COMPOSE_DIR}/nginx/conf.d/upstream.conf"
+        UPSTREAM_CONF = "/workspace/nginx/conf.d/upstream.conf"
 
         // Path to the assets directory shared with containers
-        ASSETS_DIR        = "${COMPOSE_DIR}/assets"
+        ASSETS_DIR    = "/workspace/assets"
 
         // Health check settings
         HC_MAX_RETRIES    = "5"
