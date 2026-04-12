@@ -159,7 +159,10 @@ pipeline {
                     sh """
                         cd ${COMPOSE_DIR}
 
-                        # Elimina el contenedor inactivo si existe
+                        # Asegura que ambos contenedores estén corriendo antes de desplegar
+                        docker compose up -d app-blue app-green
+
+                        # Elimina el contenedor inactivo para recrearlo limpio
                         docker stop ${INACTIVE_CONTAINER} || true
                         docker rm -f ${INACTIVE_CONTAINER} || true
 
